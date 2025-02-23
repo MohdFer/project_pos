@@ -4,22 +4,28 @@ import { Search, ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
 
 function POS() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [products, setProducts] = useState([]); // Fetch from API
+  const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
 
   // Fetch products from the backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/products?search=${searchTerm}`);
+        const response = await axios.get(`http://localhost:5000/api/products`, {
+          params: { search: searchTerm }  // Use params to send search query
+        });
         setProducts(response.data);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
     };
-
-    fetchProducts();
-  }, [searchTerm]); // Refetch when searchTerm changes
+  
+    const delayDebounce = setTimeout(() => {
+      fetchProducts();
+    }, 300); // Delay search requests to avoid too many calls
+  
+    return () => clearTimeout(delayDebounce); // Cleanup
+  }, [searchTerm]);  // Re-run when searchTerm changes
 
   const addToCart = (product) => {
     setCart(currentCart => {
@@ -62,7 +68,7 @@ function POS() {
             className="search-input"
             placeholder="Search products..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm on change
           />
         </div>
 
@@ -73,14 +79,9 @@ function POS() {
               className="product-card"
               onClick={() => addToCart(product)}
             >
-              {/* <img
-                src={product.image}
-                alt={product.name}
-                className="product-image"
-              /> */}
               <div className="product-name">{product.name}</div>
               <div className="product-price">₹{Number(product.price).toFixed(2)}</div>
-              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -93,11 +94,6 @@ function POS() {
         <div className="cart-items">
           {cart.map(item => (
             <div key={item.id} className="cart-item">
-              {/* <img
-                src={item.image}
-                alt={item.name}
-                style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: '0.25rem' }}
-              /> */}
               <div>
                 <div>{item.name}</div>
                 <div>₹{Number(item.price).toFixed(2)}</div>
