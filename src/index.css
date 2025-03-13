@@ -163,6 +163,11 @@ body {
   font-weight: 600;
 }
 
+.product-quantity {
+  color: rgb(3, 199, 3);
+  font-weight: 600;
+}
+
 /* Cart Section */
 .cart-section {
   background: white;
